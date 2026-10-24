@@ -53,11 +53,7 @@ fun topKFrequentMinHeap(nums: IntArray, k: Int): IntArray {
             pq.poll()
         }
     }
-    val result = IntArray(k)
-    for (i in result.indices) {
-        result[i] = pq.poll().num
-    }
-    return result
+    return pq.map { it.num }.toIntArray()
 }
 
 /*

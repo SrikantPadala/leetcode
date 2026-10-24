@@ -1,8 +1,15 @@
 package array_and_hashing
 
+/**
+ * Given an array of strings strs, group the anagrams together. You can return the answer in any order.
+ *
+ * Input: strs = `["eat","tea","tan","ate","nat","bat"]`
+ *
+ * Output: `[["bat"],["nat","tan"],["ate","eat","tea"]]`
+ */
 fun main() {
     val strs = arrayOf("eat","tea","tan","ate","nat","bat")
-    println(groupAnagrams(strs))
+    println(groupAnagrams4(strs))
 }
 
 /*
@@ -22,6 +29,14 @@ fun groupAnagrams(strs: Array<String>): List<List<String>> {
     return strs.groupBy { String(it.toCharArray().apply { sort() }) }.values.toList()
 }
 
+fun groupAnagrams1(strs: Array<String>): List<List<String>> {
+    return strs.groupBy { str ->
+        val count = IntArray(26)
+        for (ch in str) count[ch - 'a']++
+        count.joinToString("#") // avoids collisions
+    }.values.toList()
+}
+
 /*
     Time Complexity: O(n * k)
     Space Complexity: Still O(n * k)
@@ -35,7 +50,7 @@ fun groupAnagrams2(strs: Array<String>): List<List<String>> {
     return strs.groupBy { str ->
         val counts = IntArray(26)
         str.forEach { counts[it - 'a']++ }
-        hash(counts)
+        hash(counts) // still need contentEquals/ because collisions can happen, its not fully correct solution
     }.values.toList()
 }
 
@@ -76,14 +91,21 @@ fun groupAnagrams3(strs: Array<String>): List<List<String>> {
 }
 
 fun groupAnagrams4(strs: Array<String>): List<List<String>> {
-    fun hash(counts: IntArray): Int {
-        var result = 1
-        for (element in counts) result = 31 * result + element
-        return result
+    data class AnagramKey(val freq: IntArray) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is AnagramKey) return false
+            return freq.contentEquals(other.freq)
+        }
+
+        override fun hashCode(): Int {
+            return freq.contentHashCode()
+        }
     }
+
     return strs.groupBy { str ->
         val counts = IntArray(26)
         str.forEach { counts[it - 'a']++ }
-        hash(counts) // still need contentEquals/ because collisions can happen, its not fully correct solution
+        AnagramKey(counts)
     }.values.toList()
 }
